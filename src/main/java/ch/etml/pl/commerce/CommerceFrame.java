@@ -33,6 +33,15 @@ public class CommerceFrame extends JFrame {
 		tfMessage = new JTextField();
 		add(tfMessage,BorderLayout.SOUTH);
 
+		display.setText("");
+		try {
+			for (Item item : commerceService.getItems()) {
+				display.append(item.toString() + "\n");
+			}
+		} catch (CommerceException e) {
+			display.append(e.getMessage());
+		}
+
 		tfAchat.addActionListener(e-> {
 				String prenom = tfPrenom.getText();
 				int numItem = Integer.parseInt(tfItem.getText());
