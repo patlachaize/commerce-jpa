@@ -11,24 +11,16 @@ public class CommerceService {
 
     private Connection connection;
 
-    public CommerceService() {
+    public CommerceService() throws IOException, SQLException {
         Properties prop = new Properties();
-        try {
-            InputStream input = this.getClass().getClassLoader().getResourceAsStream("commerce.properties");
-            prop.load(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        connection = null;
-        try {
-            connection =
-                    DriverManager.getConnection(
+        InputStream input = this.getClass().getClassLoader().getResourceAsStream("commerce.properties");
+        prop.load(input);
+
+        connection = DriverManager.getConnection(
                             prop.getProperty("url"),
                             prop.getProperty("user"),
                             prop.getProperty("password")
                     );
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+
     }
 }
