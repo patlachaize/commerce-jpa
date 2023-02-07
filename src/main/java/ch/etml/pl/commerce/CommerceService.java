@@ -60,6 +60,10 @@ public class CommerceService {
     // retourne le solde du client, eventuellement négatif.
     public void achete(String prenom, int numItem) throws CommerceException, ItemNotFoundException {
         Item item = getFreeItem(numItem);
+        Client client = getClient(prenom);
+        if (client == null) {
+            client = insertClient(prenom);
+        }
     }
 
 
@@ -89,6 +93,66 @@ public class CommerceService {
         return item;
     }
 
+    private Client getClient(String prenom) throws CommerceException {
+        Client client = null;
+        try (
+                PreparedStatement s = connection.prepareStatement(
+                        "SELECT num,solde " +
+                                "FROM clients " +
+                                "WHERE prenom = ?");
+        ) {
+            s.setString(1,prenom);
+            ResultSet rs = s.executeQuery();
+            if (rs.next()) {
+                int num = rs.getInt(1);
+                BigDecimal solde = rs.getBigDecimal(2);
+                client = new Client(num,prenom,solde);
+            } else {
+                client = insertClient(prenom);
+            }
+            rs.close();
+        }  catch  (SQLException ex) {
+            ex.printStackTrace();
+            throw new CommerceException(ex);
+        }
+        return client;
+    }
+
+    private Client insertClient(String prenom) throws CommerceException {
+        Client client  = null;
+        try (
+                PreparedStatement s0 = connection.prepareStatement(
+                        "SELECT seq_clients.NEXTVAL from DUAL");
+                PreparedStatement s1 = connection.prepareStatement(
+                        "INSERT INTO CLIENTS (num,prenom) VALUES (?, ?)");
+                PreparedStatement s2 = connection.prepareStatement(
+                        "INSERT INTO CLIENTS (prenom) VALUES (?)",Statement.RETURN_GENERATED_KEYS);
+        ) {
+            String subprotocol = connection.getMetaData().getURL().split(":")[1];
+            int num = 0;
+            if (subprotocol.equals("oracle")) {
+                ResultSet rs = s0.executeQuery();
+                if (rs.next()) {
+                    num = rs.getInt(1);
+                }
+                s1.setInt(1,num);
+                s1.setString(2,prenom);
+                s1.executeUpdate();
+            } else if (subprotocol.equals("mysql")) {
+                s2.setString(1,prenom);
+                s2.executeUpdate();
+                ResultSet rs = s2.getGeneratedKeys();
+                if (rs.next()) {
+                    num = rs.getInt(1);
+                }
+            }
+            client = new Client(num,prenom,new BigDecimal(50));
+        } catch  (SQLException ex) {
+            ex.printStackTrace();
+            throw new CommerceException(ex);
+        }
+        return client;
+    }
 
 
 }
