@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class CommerceFrame extends JFrame {
 
-	public static void main(String[] args) throws  SQLException, IOException {
+	public static void main(String[] args) throws SQLException, IOException {
 		CommerceService commerceService = new CommerceService();
 		CommerceFrame commerceFrame = new CommerceFrame(commerceService);
 		commerceFrame.setTitle("Commerce");
@@ -56,10 +56,10 @@ public class CommerceFrame extends JFrame {
 			try {
 				String prenom = tfPrenom.getText();
 				int numItem = Integer.parseInt(tfItem.getText());
-				commerceService.achete(prenom,numItem);
+				BigDecimal solde = commerceService.achete(prenom,numItem);
 				liste();
-				tfMessage.setText("");
-			} catch (ItemNotFoundException | CommerceException  ex) {
+				tfMessage.setText(prenom +" a acheté l'item " + numItem +". Il lui reste " + solde);
+			} catch (ItemNotFoundException | CommerceException | NotEnoughtException ex) {
 				tfMessage.setText(ex.getMessage());
 			}
 

@@ -58,11 +58,27 @@ public class CommerceService {
 
     // crée le client si prenom inconnu, achete l'item si existant et libre sinon exception
     // retourne le solde du client, eventuellement négatif.
-    public void achete(String prenom, int numItem) throws CommerceException, ItemNotFoundException {
-        Item item = getFreeItem(numItem);
-        Client client = getClient(prenom);
-        if (client == null) {
-            client = insertClient(prenom);
+    public BigDecimal achete(String prenom, int numItem) throws NotEnoughtException, CommerceException, ItemNotFoundException {
+        try {
+            connection.setAutoCommit(false);
+            Item item = getFreeItem(numItem);
+            Client client = getClient(prenom);
+            if (client == null) {
+                client = insertClient(prenom);
+            }
+            updateSoldeClient(client, item.getPrix());
+            updateBuyerItem(numItem, client.getNum());
+            connection.commit();
+            return client.getSolde();
+        } catch (CommerceException | NotEnoughtException | ItemNotFoundException ex) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                System.out.println(e);
+            }
+            throw ex;
+        } catch (SQLException ex) {
+            throw new CommerceException(ex);
         }
     }
 
@@ -107,8 +123,6 @@ public class CommerceService {
                 int num = rs.getInt(1);
                 BigDecimal solde = rs.getBigDecimal(2);
                 client = new Client(num,prenom,solde);
-            } else {
-                client = insertClient(prenom);
             }
             rs.close();
         }  catch  (SQLException ex) {
@@ -152,6 +166,40 @@ public class CommerceService {
             throw new CommerceException(ex);
         }
         return client;
+    }
+
+    private void updateSoldeClient(Client client, BigDecimal prix) throws CommerceException, NotEnoughtException {
+        try (
+                PreparedStatement s = connection.prepareStatement(
+                        "UPDATE CLIENTS set solde = ? WHERE num = ?");
+        ) {
+            s.setBigDecimal(1,client.getSolde().subtract(prix));
+            s.setInt(2,client.getNum());
+            s.executeUpdate();
+            client.debit(prix);
+        } catch  (SQLIntegrityConstraintViolationException ex) { // Oracle DB
+            throw new NotEnoughtException(client);
+        } catch  (SQLException ex) {
+            if (ex.getErrorCode()==3819) { // MySQL 8.0.16 and higher
+                throw new NotEnoughtException(client);
+            }
+            ex.printStackTrace();
+            throw new CommerceException(ex);
+        }
+    }
+
+    private void updateBuyerItem(int numItem, int numClient) throws CommerceException {
+        try (
+                PreparedStatement s = connection.prepareStatement(
+                        "UPDATE ITEMS set client = ? WHERE num = ?");
+        ) {
+            s.setInt(1,numClient);
+            s.setInt(2,numItem);
+            s.executeUpdate();
+        } catch  (SQLException ex) {
+            ex.printStackTrace();
+            throw new CommerceException(ex);
+        }
     }
 
 
