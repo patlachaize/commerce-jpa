@@ -17,10 +17,10 @@ public class CommerceService {
         prop.load(input);
 
         connection = DriverManager.getConnection(
-                            prop.getProperty("url"),
-                            prop.getProperty("user"),
-                            prop.getProperty("password")
-                    );
+                prop.getProperty("url"),
+                prop.getProperty("user"),
+                prop.getProperty("password")
+        );
 
     }
 
@@ -36,7 +36,7 @@ public class CommerceService {
                 ResultSet rs = s.executeQuery();
         ) {
             while (rs.next()) {
-                int num =rs.getInt("num");
+                int num = rs.getInt("num");
                 String description = rs.getString("description");
                 BigDecimal prix = rs.getBigDecimal("prix");
                 int numClient = rs.getInt("client");
@@ -44,9 +44,9 @@ public class CommerceService {
                 if (numClient != 0) {
                     String prenom = rs.getString("prenom");
                     BigDecimal solde = rs.getBigDecimal("solde");
-                    client = new Client(numClient,prenom,solde);
+                    client = new Client(numClient, prenom, solde);
                 }
-                Item item = new Item(num,description,prix,client);
+                Item item = new Item(num, description, prix, client);
                 items.add(item);
             }
         } catch (SQLException ex) {
@@ -55,4 +55,41 @@ public class CommerceService {
         }
         return items;
     }
+
+    // crée le client si prenom inconnu, achete l'item si existant et libre sinon exception
+    // retourne le solde du client, eventuellement négatif.
+    public void achete(String prenom, int numItem) throws CommerceException, ItemNotFoundException {
+        Item item = getFreeItem(numItem);
+    }
+
+
+    private Item getFreeItem(int numItem) throws CommerceException, ItemNotFoundException {
+        Item item = null;
+        try (
+                PreparedStatement s = connection.prepareStatement(
+                        "SELECT description, prix " +
+                                "FROM items " +
+                                "WHERE num = ? " +
+                                "AND client is null");
+        ) {
+            s.setInt(1, numItem);
+            ResultSet rs = s.executeQuery();
+            if (rs.next()) {
+                String description = rs.getString(1);
+                BigDecimal prix = rs.getBigDecimal(2);
+                item = new Item(numItem, description, prix, null);
+            } else {
+                throw new ItemNotFoundException(numItem);
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            throw new CommerceException(ex);
+        }
+        return item;
+    }
+
+
+
 }
+

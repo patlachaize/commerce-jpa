@@ -1,5 +1,7 @@
 package ch.etml.pl.commerce;
 
+import ch.etml.pl.CommerceFrame;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
