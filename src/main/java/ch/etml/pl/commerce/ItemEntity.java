@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
-@Table(name = "items", schema = "commerce", catalog = "")
+@Table(name = "items")
 public class ItemEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -18,12 +18,9 @@ public class ItemEntity {
     @Basic
     @Column(name = "prix")
     private BigDecimal prix;
-    @Basic
-    @Column(name = "client")
-    private Integer client;
     @ManyToOne
     @JoinColumn(name = "client", referencedColumnName = "num")
-    private ClientEntity clientsByClient;
+    private ClientEntity client;
 
     public int getNum() {
         return num;
@@ -49,13 +46,6 @@ public class ItemEntity {
         this.prix = prix;
     }
 
-    public Integer getClient() {
-        return client;
-    }
-
-    public void setClient(Integer client) {
-        this.client = client;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -67,14 +57,14 @@ public class ItemEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(num, description, prix, client);
+        return Objects.hash(num, description, prix);
     }
 
-    public ClientEntity getClientsByClient() {
-        return clientsByClient;
+    public ClientEntity getClient() {
+        return client;
     }
 
-    public void setClientsByClient(ClientEntity clientsByClient) {
-        this.clientsByClient = clientsByClient;
+    public void setClient(ClientEntity clientsByClient) {
+        this.client = clientsByClient;
     }
 }

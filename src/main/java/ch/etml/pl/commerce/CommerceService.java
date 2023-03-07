@@ -1,15 +1,23 @@
 package ch.etml.pl.commerce;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Query;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class CommerceService {
 
     private Connection connection;
+
+    private EntityManager em;
 
     public CommerceService() throws IOException, SQLException {
         Properties prop = new Properties();
@@ -21,37 +29,56 @@ public class CommerceService {
                 prop.getProperty("user"),
                 prop.getProperty("password")
         );
-
+        EntityManagerFactory emfactory = 	Persistence.createEntityManagerFactory( "commerce" );
+        em = emfactory.createEntityManager( );
     }
+
+//    public ArrayList<Item> getItems() throws CommerceException {
+//        ArrayList<Item> items = new ArrayList<>();
+//        try (
+//                PreparedStatement s = connection.prepareStatement(
+//                        "SELECT i.num,i.description,i.prix," +
+//                                "i.client, c.prenom, c.solde " +
+//                                "FROM items i " +
+//                                "LEFT OUTER JOIN clients c ON c.num = i.client " +
+//                                "ORDER BY i.num");
+//                ResultSet rs = s.executeQuery();
+//        ) {
+//            while (rs.next()) {
+//                int num = rs.getInt("num");
+//                String description = rs.getString("description");
+//                BigDecimal prix = rs.getBigDecimal("prix");
+//                int numClient = rs.getInt("client");
+//                Client client = null;
+//                if (numClient != 0) {
+//                    String prenom = rs.getString("prenom");
+//                    BigDecimal solde = rs.getBigDecimal("solde");
+//                    client = new Client(numClient, prenom, solde);
+//                }
+//                Item item = new Item(num, description, prix, client);
+//                items.add(item);
+//            }
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//            throw new CommerceException(ex);
+//        }
+//        return items;
+//    }
 
     public ArrayList<Item> getItems() throws CommerceException {
         ArrayList<Item> items = new ArrayList<>();
-        try (
-                PreparedStatement s = connection.prepareStatement(
-                        "SELECT i.num,i.description,i.prix," +
-                                "i.client, c.prenom, c.solde " +
-                                "FROM items i " +
-                                "LEFT OUTER JOIN clients c ON c.num = i.client " +
-                                "ORDER BY i.num");
-                ResultSet rs = s.executeQuery();
-        ) {
-            while (rs.next()) {
-                int num = rs.getInt("num");
-                String description = rs.getString("description");
-                BigDecimal prix = rs.getBigDecimal("prix");
-                int numClient = rs.getInt("client");
-                Client client = null;
-                if (numClient != 0) {
-                    String prenom = rs.getString("prenom");
-                    BigDecimal solde = rs.getBigDecimal("solde");
-                    client = new Client(numClient, prenom, solde);
-                }
-                Item item = new Item(num, description, prix, client);
-                items.add(item);
+        Query query = em.createQuery("select i from ItemEntity i");
+        List<ItemEntity> itemEntityList = query.getResultList();
+        for (ItemEntity itemEntity : itemEntityList) {
+            Client client = null;
+            ClientEntity clientEntity = itemEntity.getClient();
+            if (clientEntity != null) {
+                client = new Client(
+                        clientEntity.getNum(), clientEntity.getPrenom(), clientEntity.getSolde());
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            throw new CommerceException(ex);
+            Item item = new Item(itemEntity.getNum(), itemEntity.getDescription(),
+                    itemEntity.getPrix(), client);
+            items.add(item);
         }
         return items;
     }
