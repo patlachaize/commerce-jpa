@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+    <persistence-unit name="commerce">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>ch.etml.pl.commerce.ClientsEntity</class>
+        <class>ch.etml.pl.commerce.ItemsEntity</class>
+        <properties>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost/commerce?serverTimezone=UTC"/>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.user" value="adm"/>
+            <property name="jakarta.persistence.jdbc.password" value="adm"/>
+            <property name="eclipselink.jdbc.url" value="jdbc:mysql://localhost:3306/commerce"/>
+            <property name="eclipselink.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="eclipselink.jdbc.user" value="adm"/>
+            <property name="eclipselink.jdbc.password" value="adm"/>
+        </properties>
+    </persistence-unit>
+</persistence>
