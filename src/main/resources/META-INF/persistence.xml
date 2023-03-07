@@ -5,8 +5,8 @@
              version="3.0">
     <persistence-unit name="commerce">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <class>ch.etml.pl.commerce.ClientsEntity</class>
-        <class>ch.etml.pl.commerce.ItemsEntity</class>
+        <class>ch.etml.pl.commerce.ClientEntity</class>
+        <class>ch.etml.pl.commerce.ItemEntity</class>
         <properties>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost/commerce?serverTimezone=UTC"/>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>

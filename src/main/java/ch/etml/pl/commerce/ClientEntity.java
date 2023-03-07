@@ -3,18 +3,17 @@ package ch.etml.pl.commerce;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Objects;
 
 @Entity
-@Table(name = "clients")
+@Table(name = "clients", schema = "commerce", catalog = "")
 public class ClientEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "num")
     private int num;
     @Basic
-    @Column(name = "prenom", length = 10)
+    @Column(name = "prenom")
     private String prenom;
     @Basic
     @Column(name = "solde")
@@ -56,5 +55,4 @@ public class ClientEntity {
     public int hashCode() {
         return Objects.hash(num, prenom, solde);
     }
-
 }
