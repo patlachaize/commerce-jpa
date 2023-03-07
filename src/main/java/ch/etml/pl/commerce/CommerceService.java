@@ -1,9 +1,6 @@
 package ch.etml.pl.commerce;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.Query;
+import jakarta.persistence.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,29 +83,62 @@ public class CommerceService {
     // crée le client si prenom inconnu, achete l'item si existant et libre sinon exception
     // retourne le solde du client, eventuellement négatif.
     public BigDecimal achete(String prenom, int numItem) throws NotEnoughtException, CommerceException, ItemNotFoundException {
+        em.getTransaction().begin();
+        Query query1 = em.createQuery("select i from ItemEntity i where i.num=:num and i.client is null");
+        query1.setParameter("num", numItem);
+        ItemEntity itemEntity = null;
         try {
-            connection.setAutoCommit(false);
-            Item item = getFreeItem(numItem);
-            Client client = getClient(prenom);
-            if (client == null) {
-                client = insertClient(prenom);
-            }
-            updateSoldeClient(client, item.getPrix());
-            updateBuyerItem(numItem, client.getNum());
-            connection.commit();
-            return client.getSolde();
-        } catch (CommerceException | NotEnoughtException | ItemNotFoundException ex) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                System.out.println(e);
-            }
-            throw ex;
-        } catch (SQLException ex) {
-            throw new CommerceException(ex);
+            itemEntity = (ItemEntity) query1.getSingleResult();
+        } catch (NoResultException e) {
+            em.getTransaction().rollback();
+            throw new ItemNotFoundException(numItem);
         }
+        Query query2 = em.createQuery("select c from ClientEntity  c where c.prenom=:prenom");
+        query2.setParameter("prenom", prenom);
+        ClientEntity clientEntity = null;
+        try {
+            clientEntity = (ClientEntity) query2.getSingleResult();
+        } catch (NoResultException e) {
+            clientEntity = new ClientEntity();
+            em.persist(clientEntity);
+            clientEntity.setPrenom(prenom);
+            clientEntity.setSolde(new BigDecimal(50));
+        }
+        BigDecimal soldeNew = clientEntity.getSolde().subtract(itemEntity.getPrix());
+        if (soldeNew.intValue() < 0) {
+            em.getTransaction().rollback();
+            throw new NotEnoughtException(new Client(
+                    clientEntity.getNum(), clientEntity.getPrenom(), clientEntity.getSolde()
+            ));
+        }
+        clientEntity.setSolde(soldeNew);
+        itemEntity.setClient(clientEntity);
+        em.getTransaction().commit();
+        return soldeNew;
     }
-
+//    public BigDecimal achete(String prenom, int numItem) throws NotEnoughtException, CommerceException, ItemNotFoundException {
+//        try {
+//            connection.setAutoCommit(false);
+//            Item item = getFreeItem(numItem);
+//            Client client = getClient(prenom);
+//            if (client == null) {
+//                client = insertClient(prenom);
+//            }
+//            updateSoldeClient(client, item.getPrix());
+//            updateBuyerItem(numItem, client.getNum());
+//            connection.commit();
+//            return client.getSolde();
+//        } catch (CommerceException | NotEnoughtException | ItemNotFoundException ex) {
+//            try {
+//                connection.rollback();
+//            } catch (SQLException e) {
+//                System.out.println(e);
+//            }
+//            throw ex;
+//        } catch (SQLException ex) {
+//            throw new CommerceException(ex);
+//        }
+//    }
 
     private Item getFreeItem(int numItem) throws CommerceException, ItemNotFoundException {
         Item item = null;

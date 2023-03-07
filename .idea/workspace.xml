@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="343a9a41-dfd7-46ae-bc7f-b5c028ff5117" name="Changes" comment="with entities">
+    <list default="true" id="343a9a41-dfd7-46ae-bc7f-b5c028ff5117" name="Changes" comment="with getItems">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ch/etml/pl/commerce/CommerceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ch/etml/pl/commerce/CommerceService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ch/etml/pl/commerce/ItemEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ch/etml/pl/commerce/ItemEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/ch/etml/pl/commerce/CommerceService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/ch/etml/pl/commerce/CommerceService.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +90,7 @@
       <option name="presentableId" value="Default" />
       <updated>1677597011632</updated>
       <workItem from="1677597012780" duration="1064000" />
-      <workItem from="1678191185416" duration="2431000" />
+      <workItem from="1678191185416" duration="5428000" />
     </task>
     <task id="LOCAL-00001" summary="with entities">
       <created>1678191244224</created>
@@ -112,7 +113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1678191382790</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="with getItems">
+      <created>1678195703494</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1678195703494</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -131,6 +139,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="with entities" />
-    <option name="LAST_COMMIT_MESSAGE" value="with entities" />
+    <MESSAGE value="with getItems" />
+    <option name="LAST_COMMIT_MESSAGE" value="with getItems" />
   </component>
 </project>
